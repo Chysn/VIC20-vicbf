@@ -33,6 +33,21 @@ CODE_E = $033E
 W_IP   = $FB
 W_DP   = $FD
 HI_DP  = $A3
+
+; Brainf**k Commands
+C_IP_D = $3C ; <
+C_IP_I = $3E ; >
+C_DP_D = $2D ; -
+C_DP_I = $2B ; +
+C_OUT  = $2E ; .
+C_IN   = $2C ; ,
+C_LP_S = $5B ; [
+A_LP_S = $1B ; [ (alias for screen RAM)
+C_LP_E = $5D ; ]
+A_LP_E = $1D ; ] (alias for screen RAM)
+
+; VICBF Pseudo-Command
+PC_END = $2A ; *
  
 ; Copy the starting instruction and data pointers to working memory.
 ; This is copied so that the BF program can be run multiple times, with
@@ -63,7 +78,7 @@ GETCMD  LDY #$00
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the data pointer decrement command '<'
 ;
-PTRDEC  CMP #$3C
+PTRDEC  CMP #C_IP_D
         BNE PTRINC      ; Nope, check the next possibility
         DEC *W_DP
         CMP #$FF
@@ -73,7 +88,7 @@ PTRDEC  CMP #$3C
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the data pointer increment command '>'
 ;
-PTRINC  CMP #$3E
+PTRINC  CMP #C_IP_I
         BNE MEMDEC      ; Nope, check the next possibility
         INC *W_DP
         BNE CHKMEM
@@ -100,7 +115,7 @@ CHKMEM  LDA *W_DP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the data decrement command '-'
 ;
-MEMDEC  CMP #$2D
+MEMDEC  CMP #C_DP_D
         BNE MEMINC      ; Nope, check the next possibility
         LDA (W_DP),Y
         TAX
@@ -115,7 +130,7 @@ TOCMD   SEC
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the data increment command '+'       
 ;
-MEMINC  CMP #$2B
+MEMINC  CMP #C_DP_I
         BNE OUTPUT      ; Nope, check the next possibility
         LDA (W_DP),Y
         TAX
@@ -128,7 +143,7 @@ MEMINC  CMP #$2B
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the output command '.'  
 ;      
-OUTPUT  CMP #$2E
+OUTPUT  CMP #C_OUT
         BNE INPUT       ; Nope, check the next possibility
         LDA (W_DP),Y
         JSR $FFD2
@@ -143,7 +158,7 @@ TOGET   SEC
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the input command ','
 ;
-INPUT   CMP #$2C
+INPUT   CMP #C_IN
         BNE SLOOP       ; Nope, check the next possibility
         JSR $FFCF
         LDY #$00
@@ -154,9 +169,9 @@ INPUT   CMP #$2C
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the start loop command '['
 ;
-SLOOP   CMP #$5B
+SLOOP   CMP #C_LP_S
         BEQ STARTL
-        CMP #$1B        ; Alias for '[' for programs running in screen memory
+        CMP #A_LP_S        ; Alias for '[' for programs running in screen memory
         BNE ELOOP       ; Nope, check the next possibility
 STARTL  LDA (W_DP),Y      ; Get the data in the current cell
         BNE NLOOP       ; If it's not zero, enter a new loop
@@ -167,20 +182,20 @@ STARTL  LDA (W_DP),Y      ; Get the data in the current cell
 ; '[' is found during the search, the X register is incremented so
 ; that we know which ']' matches the '[' that we're interested in.
         LDX #$01        ; X is the loop level
-NEXTLC  INC *W_IP         ; Increase the instruction pointer
+NEXTLC  INC *W_IP       ; Increase the instruction pointer
         BNE CHKCMD
         INC *$FC
-CHKCMD  LDA (W_IP),Y      ; and look at its command
-        CMP #$2A    
+CHKCMD  LDA (W_IP),Y    ; and look at its command
+        CMP #PC_END    
         BEQ BYE         ; If the program is done, end
-CHKLS   CMP #$5B        ; Is it another, inner, '['?
-        BEQ FOUNDS      ; Alias for '[' for programs running in screen memory
-        CMP #$1B
+CHKLS   CMP #C_LP_S        ; Is it another, inner, '['?
+        BEQ FOUNDS
+        CMP #A_LP_S        ; Alias for '[' for programs running in screen memory
         BNE CHKLE
 FOUNDS  INX             ; If so, increment the loop counter
-CHKLE   CMP #$5D        ; Is it a ']'?
+CHKLE   CMP #C_LP_E        ; Is it a ']'?
         BEQ FOUNDE
-        CMP #$1D        ; Alias for ']' for programs running in screen memory
+        CMP #A_LP_E        ; Alias for ']' for programs running in screen memory
         BNE NEXTLC      ; If not, keep looking
 FOUNDE  DEX             ; Is this the ']' that matches the original '['?
         BEQ ADV         ; Yes! Go to the next command
@@ -203,9 +218,9 @@ NLOOP   LDA *W_IP
 ; beginning. After this, jump back to GETCMD without advancing the intruction
 ; pointer, because we want to make sure the '[' is handled again based on the
 ; current cell value.
-ELOOP   CMP #$5D
+ELOOP   CMP #C_LP_E
         BEQ ENDL
-        CMP #$1D        ; Alias for ']' for programs running in screen memory
+        CMP #A_LP_E        ; Alias for ']' for programs running in screen memory
         BNE EXIT        ; Nope, check the next possibility
 ENDL    PLA
         STA *$FC
@@ -219,7 +234,7 @@ ENDL    PLA
 ; because it's not part of the BF specification. But the program needs to end somehow. 
 ; (Note that, on the VIC-20, this is an asterisk)  
 ;                 
-EXIT    CMP #$2A
+EXIT    CMP #PC_END
         BNE ADV
 BYE     RTS
 
