@@ -30,9 +30,9 @@ CODE_E = $033E
 * = $1800
 
 ; Working memory locations 
-IP     = $FB
-DP     = $FD
-DP_HI  = $A3
+W_IP   = $FB
+W_DP   = $FD
+HI_DP  = $A3
  
 ; Copy the starting instruction and data pointers to working memory.
 ; This is copied so that the BF program can be run multiple times, with
@@ -47,25 +47,25 @@ COPY    LDA $033B,X
 ; first memory cell to 0, then increment the high memory location. The high
 ; data pointer is used to set each memory cell to 0 the first time it's used.
         LDA #$00
-        STA (DP,X)
+        STA (W_DP,X)
         LDA $033E
-        STA *DP_HI
+        STA *HI_DP
         LDA $033F
         STA *$A4
-        INC *DP_HI
+        INC *HI_DP
         BNE GETCMD
         INC *$A4
       
 ; Load the Accumulator with the character at the instruction pointer      
 GETCMD  LDY #$00
-        LDA (IP),Y
+        LDA (W_IP),Y
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the data pointer decrement command '<'
 ;
 PTRDEC  CMP #$3C
         BNE PTRINC      ; Nope, check the next possibility
-        DEC *DP
+        DEC *W_DP
         CMP #$FF
         BNE TOADV 
         DEC *$FE
@@ -75,14 +75,14 @@ PTRDEC  CMP #$3C
 ;
 PTRINC  CMP #$3E
         BNE MEMDEC      ; Nope, check the next possibility
-        INC *DP
+        INC *W_DP
         BNE CHKMEM
         INC *$FE
         
 ; See if the newly-incremented data pointer has gone into new territory
 ; by advancing to the high data pointer location.        
-CHKMEM  LDA *DP
-        CMP *DP_HI
+CHKMEM  LDA *W_DP
+        CMP *HI_DP
         BNE TOADV
         LDA *$FE
         CMP *$A4
@@ -90,8 +90,8 @@ CHKMEM  LDA *DP
 ; If the data pointer has broken a record, initialize (set to 0) the cell value,
 ; then advance the high data pointer.
         LDA #$00
-        STA (DP_HI),Y
-        INC *DP_HI
+        STA (HI_DP),Y
+        INC *HI_DP
         BNE TOADV
         INC *$A4
         SEC
@@ -102,11 +102,11 @@ CHKMEM  LDA *DP
 ;
 MEMDEC  CMP #$2D
         BNE MEMINC      ; Nope, check the next possibility
-        LDA (DP),Y
+        LDA (W_DP),Y
         TAX
         DEX
         TXA
-        STA (DP),Y
+        STA (W_DP),Y
         SEC
         BCS TOADV
 TOCMD   SEC
@@ -117,11 +117,11 @@ TOCMD   SEC
 ;
 MEMINC  CMP #$2B
         BNE OUTPUT      ; Nope, check the next possibility
-        LDA (DP),Y
+        LDA (W_DP),Y
         TAX
         INX
         TXA
-        STA (DP),Y
+        STA (W_DP),Y
         SEC
         BCS TOADV
 
@@ -130,7 +130,7 @@ MEMINC  CMP #$2B
 ;      
 OUTPUT  CMP #$2E
         BNE INPUT       ; Nope, check the next possibility
-        LDA (DP),Y
+        LDA (W_DP),Y
         JSR $FFD2
 
 ; TOADV is a target for relative branches above, that are too far away from ADV
@@ -147,7 +147,7 @@ INPUT   CMP #$2C
         BNE SLOOP       ; Nope, check the next possibility
         JSR $FFCF
         LDY #$00
-        STA (DP),Y
+        STA (W_DP),Y
         SEC
         BCS ADV
 
@@ -158,7 +158,7 @@ SLOOP   CMP #$5B
         BEQ STARTL
         CMP #$1B        ; Alias for '[' for programs running in screen memory
         BNE ELOOP       ; Nope, check the next possibility
-STARTL  LDA (DP),Y      ; Get the data in the current cell
+STARTL  LDA (W_DP),Y      ; Get the data in the current cell
         BNE NLOOP       ; If it's not zero, enter a new loop
 
 ; If the data is 0, the task at hand is to skip the loop by finding
@@ -167,10 +167,10 @@ STARTL  LDA (DP),Y      ; Get the data in the current cell
 ; '[' is found during the search, the X register is incremented so
 ; that we know which ']' matches the '[' that we're interested in.
         LDX #$01        ; X is the loop level
-NEXTLC  INC *IP         ; Increase the instruction pointer
+NEXTLC  INC *W_IP         ; Increase the instruction pointer
         BNE CHKCMD
         INC *$FC
-CHKCMD  LDA (IP),Y      ; and look at its command
+CHKCMD  LDA (W_IP),Y      ; and look at its command
         CMP #$2A    
         BEQ BYE         ; If the program is done, end
 CHKLS   CMP #$5B        ; Is it another, inner, '['?
@@ -189,7 +189,7 @@ FOUNDE  DEX             ; Is this the ']' that matches the original '['?
 ; Enter a new loop by pushing the instruction pointer onto the stack. When the
 ; end-of-loop command ']' is reached, the instruction pointer will be popped
 ; off the stack to bring the program back to the start of the loop.        
-NLOOP   LDA *IP
+NLOOP   LDA *W_IP
         PHA
         LDA *$FC
         PHA
@@ -210,7 +210,7 @@ ELOOP   CMP #$5D
 ENDL    PLA
         STA *$FC
         PLA
-        STA *IP
+        STA *W_IP
         SEC
         BCS TOGET
 
@@ -225,7 +225,7 @@ BYE     RTS
 
 ; Now that the command has been processed, or not processed, advance the instruction
 ; pointer and go back to GETCMD
-ADV     INC *IP
+ADV     INC *W_IP
         BNE TOGET
         INC *$FC
         SEC
