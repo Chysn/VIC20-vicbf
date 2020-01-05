@@ -1,6 +1,6 @@
-VICBF is a Brainfuck interpreter for Commodore VIC-20. Note the following:
+_VICBF is a Brainfuck interpreter for Commodore VIC-20_
 
-## IMPLEMENTATION DETAILS
+## Implementation Details
     
 * The interpreter will begin executing BF code at a memory location specified by
   a pointer at $033C (828)
