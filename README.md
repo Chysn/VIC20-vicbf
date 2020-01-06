@@ -1,5 +1,7 @@
 _VICBF is a Brainfuck interpreter for Commodore VIC-20_
 
+This interpreter is dedicated to Murphy.
+
 ## Implementation Details
     
 * The interpreter will begin executing BF code at a memory location specified by
