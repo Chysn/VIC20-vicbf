@@ -27,6 +27,8 @@
 ; SETUP is one less than the first setup location, because the
 ; copy is 1-indexed
 SETUP  = $033B
+DATA_L = $033E
+DATA_H = $033F
 
 ; This code is fully-relocatable. You can put it anywhere in memory and it will work.
 * = $1800
@@ -68,9 +70,9 @@ COPY    LDA SETUP,X
 ; data pointer is used to set each memory cell to 0 the first time it's used.
         LDA #$00
         STA (W_DP,X)
-        LDA $033E
+        LDA DATA_L
         STA *HI_DP
-        LDA $033F
+        LDA DATA_H
         STA *HI_DPH
         INC *HI_DP
         BNE GETCMD
