@@ -23,8 +23,10 @@
 ; Before executing, two configuration settings need to be done:
 ; (1) The starting address of the code is placed in $033C/$033D
 ; (2) The starting address of the data is placed in $033E/$033F
-CODE_S = $033C
-CODE_E = $033E
+;
+; SETUP is one less than the first setup location, because the
+; copy is 1-indexed
+SETUP  = $033B
 
 ; This code is fully-relocatable. You can put it anywhere in memory and it will work.
 * = $1800
@@ -56,7 +58,7 @@ PC_END = $2A ; *
 ; This is copied so that the BF program can be run multiple times, with
 ; the state always restored.
 INIT    LDX #$04
-COPY    LDA $033B,X
+COPY    LDA SETUP,X
         STA $FA,X
         DEX
         BNE COPY
