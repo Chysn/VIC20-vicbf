@@ -70,7 +70,8 @@ IMPLEMENTATION DETAILS
   address is assumed to be the lowest end of the tape.
   
 * Each loop ([...]) takes two bytes of stack space, so the levels of nesting
-  are limited by available stack space.
+  are limited by available stack space. VICBF does not check for stack overflow
+  nor stack overread, so pay attention to this.
   
 * The end of VICBF code is indicated by an asterisk (* ($2A)) pseudo-command
 

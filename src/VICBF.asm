@@ -31,8 +31,11 @@ CODE_E = $033E
 
 ; Working memory locations 
 W_IP   = $FB
+W_IPH  = $FC
 W_DP   = $FD
+W_DPH  = $FE
 HI_DP  = $A3
+HI_DPH = $A4
 
 ; Brainf**k Commands
 C_IP_D = $3C ; <
@@ -66,10 +69,10 @@ COPY    LDA $033B,X
         LDA $033E
         STA *HI_DP
         LDA $033F
-        STA *$A4
+        STA *HI_DPH
         INC *HI_DP
         BNE GETCMD
-        INC *$A4
+        INC *HI_DPH
       
 ; Load the Accumulator with the character at the instruction pointer      
 GETCMD  LDY #$00
@@ -83,7 +86,7 @@ PTRDEC  CMP #C_IP_D
         DEC *W_DP
         CMP #$FF
         BNE TOADV 
-        DEC *$FE
+        DEC *W_DPH
         
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the data pointer increment command '>'
@@ -92,15 +95,15 @@ PTRINC  CMP #C_IP_I
         BNE MEMDEC      ; Nope, check the next possibility
         INC *W_DP
         BNE CHKMEM
-        INC *$FE
+        INC *W_DPH
         
 ; See if the newly-incremented data pointer has gone into new territory
 ; by advancing to the high data pointer location.        
 CHKMEM  LDA *W_DP
         CMP *HI_DP
         BNE TOADV
-        LDA *$FE
-        CMP *$A4
+        LDA *W_DPH
+        CMP *HI_DPH
         BNE TOADV
 ; If the data pointer has broken a record, initialize (set to 0) the cell value,
 ; then advance the high data pointer.
@@ -108,7 +111,7 @@ CHKMEM  LDA *W_DP
         STA (HI_DP),Y
         INC *HI_DP
         BNE TOADV
-        INC *$A4
+        INC *HI_DPH
         SEC
         BCS TOADV
 
@@ -184,7 +187,7 @@ STARTL  LDA (W_DP),Y      ; Get the data in the current cell
         LDX #$01        ; X is the loop level
 NEXTLC  INC *W_IP       ; Increase the instruction pointer
         BNE CHKCMD
-        INC *$FC
+        INC *W_IPH
 CHKCMD  LDA (W_IP),Y    ; and look at its command
         CMP #PC_END    
         BEQ BYE         ; If the program is done, end
@@ -206,7 +209,7 @@ FOUNDE  DEX             ; Is this the ']' that matches the original '['?
 ; off the stack to bring the program back to the start of the loop.        
 NLOOP   LDA *W_IP
         PHA
-        LDA *$FC
+        LDA *W_IPH
         PHA
         SEC
         BCS ADV
@@ -223,7 +226,7 @@ ELOOP   CMP #C_LP_E
         CMP #A_LP_E        ; Alias for ']' for programs running in screen memory
         BNE EXIT        ; Nope, check the next possibility
 ENDL    PLA
-        STA *$FC
+        STA *W_IPH
         PLA
         STA *W_IP
         SEC
@@ -242,6 +245,6 @@ BYE     RTS
 ; pointer and go back to GETCMD
 ADV     INC *W_IP
         BNE TOGET
-        INC *$FC
+        INC *W_IPH
         SEC
         BCS TOGET
