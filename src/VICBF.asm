@@ -176,7 +176,7 @@ INPUT   CMP #C_IN
 ;
 SLOOP   CMP #C_LP_S
         BEQ STARTL
-        CMP #A_LP_S        ; Alias for '[' for programs running in screen memory
+        CMP #A_LP_S     ; Alias for '[' for programs running in screen memory
         BNE ELOOP       ; Nope, check the next possibility
 STARTL  LDA (W_DP),Y      ; Get the data in the current cell
         BNE NLOOP       ; If it's not zero, enter a new loop
@@ -193,14 +193,14 @@ NEXTLC  INC *W_IP       ; Increase the instruction pointer
 CHKCMD  LDA (W_IP),Y    ; and look at its command
         CMP #PC_END    
         BEQ BYE         ; If the program is done, end
-CHKLS   CMP #C_LP_S        ; Is it another, inner, '['?
+CHKLS   CMP #C_LP_S     ; Is it another, inner, '['?
         BEQ FOUNDS
-        CMP #A_LP_S        ; Alias for '[' for programs running in screen memory
+        CMP #A_LP_S     ; Alias for '[' for programs running in screen memory
         BNE CHKLE
 FOUNDS  INX             ; If so, increment the loop counter
-CHKLE   CMP #C_LP_E        ; Is it a ']'?
+CHKLE   CMP #C_LP_E     ; Is it a ']'?
         BEQ FOUNDE
-        CMP #A_LP_E        ; Alias for ']' for programs running in screen memory
+        CMP #A_LP_E     ; Alias for ']' for programs running in screen memory
         BNE NEXTLC      ; If not, keep looking
 FOUNDE  DEX             ; Is this the ']' that matches the original '['?
         BEQ ADV         ; Yes! Go to the next command
@@ -225,7 +225,7 @@ NLOOP   LDA *W_IP
 ; current cell value.
 ELOOP   CMP #C_LP_E
         BEQ ENDL
-        CMP #A_LP_E        ; Alias for ']' for programs running in screen memory
+        CMP #A_LP_E     ; Alias for ']' for programs running in screen memory
         BNE EXIT        ; Nope, check the next possibility
 ENDL    PLA
         STA *W_IPH
