@@ -24,7 +24,7 @@ This interpreter is dedicated to Murphy.
   are limited by available stack space.
 * The end of VICBF code is indicated by an asterisk (* ($2A)) pseudo-command
 * THE VICBF interpreter allows code to be run from any memory location, including
-  screen RAM. This requires that the [ and ] commands each have two codes, a PETASCII
+  screen RAM. This requires that the [ and ] commands each allow two codes, a PETASCII
   code ($5B and $5D) and a screen RAM code ($1B and $1D). Fortunately, the rest of
   the commands, and the code-ending pseudo-command, have the same code for PETASCII
   and screen RAM.
