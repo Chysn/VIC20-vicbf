@@ -60,8 +60,8 @@ PC_END = $2A ; *
 ; Copy the starting instruction and data pointers to working memory.
 ; This is copied so that the BF program can be run multiple times, with
 ; the state always restored.
-INIT    LDX #$04
-COPY    LDA SU_SRC,X
+INIT:   LDX #$04
+COPY:   LDA SU_SRC,X
         STA SU_DST,X
         DEX
         BNE COPY
@@ -80,13 +80,13 @@ COPY    LDA SU_SRC,X
         INC HI_DPH
       
 ; Load the Accumulator with the character at the instruction pointer      
-GETCMD  LDY #$00
+GETCMD: LDY #$00
         LDA (W_IP),Y
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the data pointer decrement command '<'
 ;
-PTRDEC  CMP #C_IP_D
+PTRDEC: CMP #C_IP_D
         BNE PTRINC      ; Nope, check the next possibility
         DEC W_DP
         CMP #$FF
@@ -96,7 +96,7 @@ PTRDEC  CMP #C_IP_D
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the data pointer increment command '>'
 ;
-PTRINC  CMP #C_IP_I
+PTRINC: CMP #C_IP_I
         BNE MEMDEC      ; Nope, check the next possibility
         INC W_DP
         BNE CHKMEM
@@ -104,7 +104,7 @@ PTRINC  CMP #C_IP_I
         
 ; See if the newly-incremented data pointer has gone into new territory
 ; by advancing to the high data pointer location.        
-CHKMEM  LDA W_DP
+CHKMEM: LDA W_DP
         CMP HI_DP
         BNE TOADV
         LDA W_DPH
@@ -123,7 +123,7 @@ CHKMEM  LDA W_DP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the data decrement command '-'
 ;
-MEMDEC  CMP #C_DP_D
+MEMDEC: CMP #C_DP_D
         BNE MEMINC      ; Nope, check the next possibility
         LDA (W_DP),Y
         TAX
@@ -132,13 +132,13 @@ MEMDEC  CMP #C_DP_D
         STA (W_DP),Y
         SEC
         BCS TOADV
-TOCMD   SEC
+TOCMD:  SEC
         BCS GETCMD
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the data increment command '+'       
 ;
-MEMINC  CMP #C_DP_I
+MEMINC: CMP #C_DP_I
         BNE OUTPUT      ; Nope, check the next possibility
         LDA (W_DP),Y
         TAX
@@ -151,22 +151,22 @@ MEMINC  CMP #C_DP_I
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the output command '.'  
 ;      
-OUTPUT  CMP #C_OUT
+OUTPUT: CMP #C_OUT
         BNE INPUT       ; Nope, check the next possibility
         LDA (W_DP),Y
         JSR $FFD2
 
 ; TOADV is a target for relative branches above, that are too far away from ADV
-TOADV   SEC
+TOADV:  SEC
         BCS ADV
 ; TOGET is a target for relative branches below, that are too far away from GETCMD
-TOGET   SEC
+TOGET:  SEC
         BCS GETCMD
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the input command ','
 ;
-INPUT   CMP #C_IN
+INPUT:  CMP #C_IN
         BNE SLOOP       ; Nope, check the next possibility
         JSR $FFCF
         LDY #$00
@@ -177,11 +177,11 @@ INPUT   CMP #C_IN
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the start loop command '['
 ;
-SLOOP   CMP #C_LP_S
+SLOOP:  CMP #C_LP_S
         BEQ STARTL
         CMP #A_LP_S     ; Alias for '[' for programs running in screen memory
         BNE ELOOP       ; Nope, check the next possibility
-STARTL  LDA (W_DP),Y      ; Get the data in the current cell
+STARTL: LDA (W_DP),Y      ; Get the data in the current cell
         BNE NLOOP       ; If it's not zero, enter a new loop
 
 ; If the data is 0, the task at hand is to skip the loop by finding
@@ -190,29 +190,29 @@ STARTL  LDA (W_DP),Y      ; Get the data in the current cell
 ; '[' is found during the search, the X register is incremented so
 ; that we know which ']' matches the '[' that we're interested in.
         LDX #$01        ; X is the loop level
-NEXTLC  INC W_IP       ; Increase the instruction pointer
+NEXTLC: INC W_IP       ; Increase the instruction pointer
         BNE CHKCMD
         INC W_IPH
-CHKCMD  LDA (W_IP),Y    ; and look at its command
+CHKCMD: LDA (W_IP),Y    ; and look at its command
         CMP #PC_END    
         BEQ BYE         ; If the program is done, end
-CHKLS   CMP #C_LP_S     ; Is it another, inner, '['?
+CHKLS:  CMP #C_LP_S     ; Is it another, inner, '['?
         BEQ FOUNDS
         CMP #A_LP_S     ; Alias for '[' for programs running in screen memory
         BNE CHKLE
-FOUNDS  INX             ; If so, increment the loop counter
-CHKLE   CMP #C_LP_E     ; Is it a ']'?
+FOUNDS: INX             ; If so, increment the loop counter
+CHKLE:  CMP #C_LP_E     ; Is it a ']'?
         BEQ FOUNDE
         CMP #A_LP_E     ; Alias for ']' for programs running in screen memory
         BNE NEXTLC      ; If not, keep looking
-FOUNDE  DEX             ; Is this the ']' that matches the original '['?
+FOUNDE: DEX             ; Is this the ']' that matches the original '['?
         BEQ ADV         ; Yes! Go to the next command
         BNE NEXTLC      ; No, it matches an inner '[', so keep looking
         
 ; Enter a new loop by pushing the instruction pointer onto the stack. When the
 ; end-of-loop command ']' is reached, the instruction pointer will be popped
 ; off the stack to bring the program back to the start of the loop.        
-NLOOP   LDA W_IP
+NLOOP:  LDA W_IP
         PHA
         LDA W_IPH
         PHA
@@ -226,11 +226,11 @@ NLOOP   LDA W_IP
 ; beginning. After this, jump back to GETCMD without advancing the intruction
 ; pointer, because we want to make sure the '[' is handled again based on the
 ; current cell value.
-ELOOP   CMP #C_LP_E
+ELOOP:  CMP #C_LP_E
         BEQ ENDL
         CMP #A_LP_E     ; Alias for ']' for programs running in screen memory
         BNE EXIT        ; Nope, check the next possibility
-ENDL    PLA
+ENDL:   PLA
         STA W_IPH
         PLA
         STA W_IP
@@ -242,13 +242,13 @@ ENDL    PLA
 ; because it's not part of the BF specification. But the program needs to end somehow. 
 ; (Note that, on the VIC-20, this is an asterisk)  
 ;                 
-EXIT    CMP #PC_END
+EXIT:   CMP #PC_END
         BNE ADV
-BYE     RTS
+BYE:    RTS
 
 ; Now that the command has been processed, or not processed, advance the instruction
 ; pointer and go back to GETCMD
-ADV     INC W_IP
+ADV:    INC W_IP
         BNE TOGET
         INC W_IPH
         SEC
