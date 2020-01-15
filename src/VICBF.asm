@@ -24,9 +24,10 @@
 ; (1) The starting address of the code is placed in $033C/$033D
 ; (2) The starting address of the data is placed in $033E/$033F
 ;
-; SETUP is one less than the first setup location, because the
+; SU_SRC/SU_DST are one less than the first setup location, because the
 ; copy is 1-indexed
-SETUP  = $033B
+SU_SRC = $033B
+SU_DST = $FA
 DATA_L = $033E
 DATA_H = $033F
 
@@ -60,8 +61,8 @@ PC_END = $2A ; *
 ; This is copied so that the BF program can be run multiple times, with
 ; the state always restored.
 INIT    LDX #$04
-COPY    LDA SETUP,X
-        STA $FA,X
+COPY    LDA SU_SRC,X
+        STA SU_DST,X
         DEX
         BNE COPY
         
@@ -71,12 +72,12 @@ COPY    LDA SETUP,X
         LDA #$00
         STA (W_DP,X)
         LDA DATA_L
-        STA *HI_DP
+        STA HI_DP
         LDA DATA_H
-        STA *HI_DPH
-        INC *HI_DP
+        STA HI_DPH
+        INC HI_DP
         BNE GETCMD
-        INC *HI_DPH
+        INC HI_DPH
       
 ; Load the Accumulator with the character at the instruction pointer      
 GETCMD  LDY #$00
@@ -87,35 +88,35 @@ GETCMD  LDY #$00
 ;
 PTRDEC  CMP #C_IP_D
         BNE PTRINC      ; Nope, check the next possibility
-        DEC *W_DP
+        DEC W_DP
         CMP #$FF
         BNE TOADV 
-        DEC *W_DPH
+        DEC W_DPH
         
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Handle the data pointer increment command '>'
 ;
 PTRINC  CMP #C_IP_I
         BNE MEMDEC      ; Nope, check the next possibility
-        INC *W_DP
+        INC W_DP
         BNE CHKMEM
-        INC *W_DPH
+        INC W_DPH
         
 ; See if the newly-incremented data pointer has gone into new territory
 ; by advancing to the high data pointer location.        
-CHKMEM  LDA *W_DP
-        CMP *HI_DP
+CHKMEM  LDA W_DP
+        CMP HI_DP
         BNE TOADV
-        LDA *W_DPH
-        CMP *HI_DPH
+        LDA W_DPH
+        CMP HI_DPH
         BNE TOADV
 ; If the data pointer has broken a record, initialize (set to 0) the cell value,
 ; then advance the high data pointer.
         LDA #$00
         STA (HI_DP),Y
-        INC *HI_DP
+        INC HI_DP
         BNE TOADV
-        INC *HI_DPH
+        INC HI_DPH
         SEC
         BCS TOADV
 
@@ -189,9 +190,9 @@ STARTL  LDA (W_DP),Y      ; Get the data in the current cell
 ; '[' is found during the search, the X register is incremented so
 ; that we know which ']' matches the '[' that we're interested in.
         LDX #$01        ; X is the loop level
-NEXTLC  INC *W_IP       ; Increase the instruction pointer
+NEXTLC  INC W_IP       ; Increase the instruction pointer
         BNE CHKCMD
-        INC *W_IPH
+        INC W_IPH
 CHKCMD  LDA (W_IP),Y    ; and look at its command
         CMP #PC_END    
         BEQ BYE         ; If the program is done, end
@@ -211,9 +212,9 @@ FOUNDE  DEX             ; Is this the ']' that matches the original '['?
 ; Enter a new loop by pushing the instruction pointer onto the stack. When the
 ; end-of-loop command ']' is reached, the instruction pointer will be popped
 ; off the stack to bring the program back to the start of the loop.        
-NLOOP   LDA *W_IP
+NLOOP   LDA W_IP
         PHA
-        LDA *W_IPH
+        LDA W_IPH
         PHA
         SEC
         BCS ADV
@@ -230,9 +231,9 @@ ELOOP   CMP #C_LP_E
         CMP #A_LP_E     ; Alias for ']' for programs running in screen memory
         BNE EXIT        ; Nope, check the next possibility
 ENDL    PLA
-        STA *W_IPH
+        STA W_IPH
         PLA
-        STA *W_IP
+        STA W_IP
         SEC
         BCS TOGET
 
@@ -247,8 +248,8 @@ BYE     RTS
 
 ; Now that the command has been processed, or not processed, advance the instruction
 ; pointer and go back to GETCMD
-ADV     INC *W_IP
+ADV     INC W_IP
         BNE TOGET
-        INC *W_IPH
+        INC W_IPH
         SEC
         BCS TOGET

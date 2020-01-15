@@ -1,126 +1,126 @@
                   * = 1800
 1800   A2 04      LDX #$04
 1802   BD 3B 03   LDA $033B,X
-1805   9D FA 00   STA $00FA,X
-1808   CA         DEX
-1809   D0 F7      BNE $1802
-180B   A9 00      LDA #$00
-180D   81 FD      STA ($FD,X)
-180F   AD 3E 03   LDA $033E
-1812   85 A3      STA $A3
-1814   AD 3F 03   LDA $033F
-1817   85 A4      STA $A4
-1819   E6 A3      INC $A3
-181B   D0 02      BNE $181F
-181D   E6 A4      INC $A4
-181F   A0 00      LDY #$00
-1821   B1 FB      LDA ($FB),Y
-1823   C9 3C      CMP #$3C
-1825   D0 08      BNE $182F
-1827   C6 FD      DEC $FD
-1829   C9 FF      CMP #$FF
-182B   D0 4D      BNE $187A
-182D   C6 FE      DEC $FE
-182F   C9 3E      CMP #$3E
-1831   D0 1F      BNE $1852
-1833   E6 FD      INC $FD
-1835   D0 02      BNE $1839
-1837   E6 FE      INC $FE
-1839   A5 FD      LDA $FD
-183B   C5 A3      CMP $A3
-183D   D0 3B      BNE $187A
-183F   A5 FE      LDA $FE
-1841   C5 A4      CMP $A4
-1843   D0 35      BNE $187A
-1845   A9 00      LDA #$00
-1847   91 A3      STA ($A3),Y
-1849   E6 A3      INC $A3
-184B   D0 2D      BNE $187A
-184D   E6 A4      INC $A4
-184F   38         SEC
-1850   B0 28      BCS $187A
-1852   C9 2D      CMP #$2D
-1854   D0 0D      BNE $1863
-1856   B1 FD      LDA ($FD),Y
-1858   AA         TAX
-1859   CA         DEX
-185A   8A         TXA
-185B   91 FD      STA ($FD),Y
-185D   38         SEC
-185E   B0 1A      BCS $187A
-1860   38         SEC
-1861   B0 BC      BCS $181F
-1863   C9 2B      CMP #$2B
-1865   D0 0A      BNE $1871
-1867   B1 FD      LDA ($FD),Y
-1869   AA         TAX
-186A   E8         INX
-186B   8A         TXA
-186C   91 FD      STA ($FD),Y
-186E   38         SEC
-186F   B0 09      BCS $187A
-1871   C9 2E      CMP #$2E
-1873   D0 0B      BNE $1880
-1875   B1 FD      LDA ($FD),Y
-1877   20 D2 FF   JSR $FFD2
-187A   38         SEC
-187B   B0 60      BCS $18DD
-187D   38         SEC
-187E   B0 9F      BCS $181F
-1880   C9 2C      CMP #$2C
-1882   D0 0A      BNE $188E
-1884   20 CF FF   JSR $FFCF
-1887   A0 00      LDY #$00
-1889   91 FD      STA ($FD),Y
-188B   38         SEC
-188C   B0 4F      BCS $18DD
-188E   C9 5B      CMP #$5B
-1890   F0 04      BEQ $1896
-1892   C9 1B      CMP #$1B
-1894   D0 31      BNE $18C7
-1896   B1 FD      LDA ($FD),Y
-1898   D0 24      BNE $18BE
-189A   A2 01      LDX #$01
-189C   E6 FB      INC $FB
-189E   D0 02      BNE $18A2
-18A0   E6 FC      INC $FC
-18A2   B1 FB      LDA ($FB),Y
-18A4   C9 2A      CMP #$2A
-18A6   F0 34      BEQ $18DC
-18A8   C9 5B      CMP #$5B
-18AA   F0 04      BEQ $18B0
-18AC   C9 1B      CMP #$1B
-18AE   D0 01      BNE $18B1
-18B0   E8         INX
-18B1   C9 5D      CMP #$5D
-18B3   F0 04      BEQ $18B9
-18B5   C9 1D      CMP #$1D
-18B7   D0 E3      BNE $189C
-18B9   CA         DEX
-18BA   F0 21      BEQ $18DD
-18BC   D0 DE      BNE $189C
-18BE   A5 FB      LDA $FB
-18C0   48         PHA
-18C1   A5 FC      LDA $FC
-18C3   48         PHA
-18C4   38         SEC
-18C5   B0 16      BCS $18DD
-18C7   C9 5D      CMP #$5D
-18C9   F0 04      BEQ $18CF
-18CB   C9 1D      CMP #$1D
-18CD   D0 09      BNE $18D8
-18CF   68         PLA
-18D0   85 FC      STA $FC
-18D2   68         PLA
-18D3   85 FB      STA $FB
-18D5   38         SEC
-18D6   B0 A5      BCS $187D
-18D8   C9 2A      CMP #$2A
-18DA   D0 01      BNE $18DD
-18DC   60         RTS
-18DD   E6 FB      INC $FB
-18DF   D0 9C      BNE $187D
-18E1   E6 FC      INC $FC
-18E3   38         SEC
-18E4   B0 97      BCS $187D
-18E6              .END
+1805   95 FA      STA $FA,X
+1807   CA         DEX
+1808   D0 F8      BNE $1802
+180A   A9 00      LDA #$00
+180C   81 FD      STA ($FD,X)
+180E   AD 3E 03   LDA $033E
+1811   85 A3      STA $A3
+1813   AD 3F 03   LDA $033F
+1816   85 A4      STA $A4
+1818   E6 A3      INC $A3
+181A   D0 02      BNE $181E
+181C   E6 A4      INC $A4
+181E   A0 00      LDY #$00
+1820   B1 FB      LDA ($FB),Y
+1822   C9 3C      CMP #$3C
+1824   D0 08      BNE $182E
+1826   C6 FD      DEC $FD
+1828   C9 FF      CMP #$FF
+182A   D0 4D      BNE $1879
+182C   C6 FE      DEC $FE
+182E   C9 3E      CMP #$3E
+1830   D0 1F      BNE $1851
+1832   E6 FD      INC $FD
+1834   D0 02      BNE $1838
+1836   E6 FE      INC $FE
+1838   A5 FD      LDA $FD
+183A   C5 A3      CMP $A3
+183C   D0 3B      BNE $1879
+183E   A5 FE      LDA $FE
+1840   C5 A4      CMP $A4
+1842   D0 35      BNE $1879
+1844   A9 00      LDA #$00
+1846   91 A3      STA ($A3),Y
+1848   E6 A3      INC $A3
+184A   D0 2D      BNE $1879
+184C   E6 A4      INC $A4
+184E   38         SEC
+184F   B0 28      BCS $1879
+1851   C9 2D      CMP #$2D
+1853   D0 0D      BNE $1862
+1855   B1 FD      LDA ($FD),Y
+1857   AA         TAX
+1858   CA         DEX
+1859   8A         TXA
+185A   91 FD      STA ($FD),Y
+185C   38         SEC
+185D   B0 1A      BCS $1879
+185F   38         SEC
+1860   B0 BC      BCS $181E
+1862   C9 2B      CMP #$2B
+1864   D0 0A      BNE $1870
+1866   B1 FD      LDA ($FD),Y
+1868   AA         TAX
+1869   E8         INX
+186A   8A         TXA
+186B   91 FD      STA ($FD),Y
+186D   38         SEC
+186E   B0 09      BCS $1879
+1870   C9 2E      CMP #$2E
+1872   D0 0B      BNE $187F
+1874   B1 FD      LDA ($FD),Y
+1876   20 D2 FF   JSR $FFD2
+1879   38         SEC
+187A   B0 60      BCS $18DC
+187C   38         SEC
+187D   B0 9F      BCS $181E
+187F   C9 2C      CMP #$2C
+1881   D0 0A      BNE $188D
+1883   20 CF FF   JSR $FFCF
+1886   A0 00      LDY #$00
+1888   91 FD      STA ($FD),Y
+188A   38         SEC
+188B   B0 4F      BCS $18DC
+188D   C9 5B      CMP #$5B
+188F   F0 04      BEQ $1895
+1891   C9 1B      CMP #$1B
+1893   D0 31      BNE $18C6
+1895   B1 FD      LDA ($FD),Y
+1897   D0 24      BNE $18BD
+1899   A2 01      LDX #$01
+189B   E6 FB      INC $FB
+189D   D0 02      BNE $18A1
+189F   E6 FC      INC $FC
+18A1   B1 FB      LDA ($FB),Y
+18A3   C9 2A      CMP #$2A
+18A5   F0 34      BEQ $18DB
+18A7   C9 5B      CMP #$5B
+18A9   F0 04      BEQ $18AF
+18AB   C9 1B      CMP #$1B
+18AD   D0 01      BNE $18B0
+18AF   E8         INX
+18B0   C9 5D      CMP #$5D
+18B2   F0 04      BEQ $18B8
+18B4   C9 1D      CMP #$1D
+18B6   D0 E3      BNE $189B
+18B8   CA         DEX
+18B9   F0 21      BEQ $18DC
+18BB   D0 DE      BNE $189B
+18BD   A5 FB      LDA $FB
+18BF   48         PHA
+18C0   A5 FC      LDA $FC
+18C2   48         PHA
+18C3   38         SEC
+18C4   B0 16      BCS $18DC
+18C6   C9 5D      CMP #$5D
+18C8   F0 04      BEQ $18CE
+18CA   C9 1D      CMP #$1D
+18CC   D0 09      BNE $18D7
+18CE   68         PLA
+18CF   85 FC      STA $FC
+18D1   68         PLA
+18D2   85 FB      STA $FB
+18D4   38         SEC
+18D5   B0 A5      BCS $187C
+18D7   C9 2A      CMP #$2A
+18D9   D0 01      BNE $18DC
+18DB   60         RTS
+18DC   E6 FB      INC $FB
+18DE   D0 9C      BNE $187C
+18E0   E6 FC      INC $FC
+18E2   38         SEC
+18E3   B0 97      BCS $187C
+18E5              .END
