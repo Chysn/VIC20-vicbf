@@ -1,0 +1,41 @@
+Playing Truttle1's RPG Demo
+-------------------------------
+
+Truttle1's video, "Making a Simple Game in Brainf**k!" 
+(https://www.youtube.com/watch?v=Cg98wh2-lOw), shows the development of a role-playing
+game in Brainfuck. I used this game to test VICBF, and it's included in the
+files here.
+
+The program itself is over 9K, and so it requires a VIC-20 with at least 8K
+of memory expansion.
+
+Instructions
+-------------------------------
+
+LOAD"BF-RPG-6400",8,1
+
+SEARCHING FOR BF-RPG-6400
+LOADING
+READY.
+LOAD"VICBF",8,1
+
+SEARCHING FOR VICBF
+LOADING
+READY.
+LOAD"BF-SETUP",8
+
+SEARCHING FOR BF-SETUP
+LOADING
+READY.
+RUN
+CODE? 6400
+DATA? 6000
+
+READY.
+{press Commodore/Shift for lowercase mode}
+sys 6144
+
+The game should run. For a playthough example, see Truttle1's video.
+
+Note that PETASCII's upper and lowercase letters are the opposite of standard ASCII,
+so the display will look a bit strange. 
